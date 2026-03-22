@@ -1,6 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<title>Megan 30th Tiled Parallax</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: black;
+  }
+
+  .layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    will-change: transform;
+
+    /* Tile the image */
+    background-repeat: repeat;
+    background-size: 300px 300px; /* each image is smaller, tiled */
+    background-position: center;
+  }
+</style>
+</head>
+<body>
+
+<!-- 10 layers: 10 back, 1 front -->
+<div class="layer" style="background-image: url('images/10.jpg');"></div>
+<div class="layer" style="background-image: url('images/9.png');"></div>
+<div class="layer" style="background-image: url('images/8.png');"></div>
+<div class="layer" style="background-image: url('images/7.png');"></div>
+<div class="layer" style="background-image: url('images/6.png');"></div>
+<div class="layer" style="background-image: url('images/5.png');"></div>
+<div class="layer" style="background-image: url('images/4.png');"></div>
+<div class="layer" style="background-image: url('images/3.png');"></div>
+<div class="layer" style="background-image: url('images/2.png');"></div>
+<div class="layer" style="background-image: url('images/1.png');"></div>
+
+<script>
+const layers = document.querySelectorAll('.layer');
+
+// Z-index: layer 10 back, 1 front
+layers.forEach((layer, i) => {
+  layer.style.zIndex = i;
+});
+
+let mouseX = 0, mouseY = 0;
+let targetX = 0, targetY = 0;
+const ease = 0.1;
+
+document.addEventListener('mousemove', e => {
+  targetX = (e.clientX / window.innerWidth - 0.5);
+  targetY = (e.clientY / window.innerHeight - 0.5);
+});
+
+function animate() {
+  mouseX += (targetX - mouseX) * ease;
+  mouseY += (targetY - mouseY) * ease;
+
+  layers.forEach((layer, i) => {
+    // Super dramatic parallax multiplier
+    const depth = (i + 1) * 250; // bigger for more dramatic movement
+    const x = mouseX * depth;
+    const y = mouseY * depth;
+
+    layer.style.transform = `translate(${x}px, ${y}px)`;
+  });
+
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
   <meta charset="UTF-8">
   <title>Megan 30th Parallax - Tiled</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
