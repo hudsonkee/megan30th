@@ -1,10 +1,100 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Hello World</title>
+  <meta charset="UTF-8">
+  <title>Parallax Tiles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      background: black;
+      height: 200vh; /* allow scrolling */
+      cursor: none;
+    }
+
+    .layer {
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background-repeat: repeat;
+      background-size: 1920px 1080px;
+      will-change: transform;
+    }
+
+    /* Optional: slight blur for depth */
+    .layer:nth-child(1) { filter: blur(8px); }
+    .layer:nth-child(2) { filter: blur(6px); }
+    .layer:nth-child(3) { filter: blur(5px); }
+    .layer:nth-child(4) { filter: blur(4px); }
+    .layer:nth-child(5) { filter: blur(3px); }
+    .layer:nth-child(6) { filter: blur(2px); }
+    .layer:nth-child(7) { filter: blur(1px); }
+    .layer:nth-child(8) { filter: blur(0px); }
+    .layer:nth-child(9) { filter: blur(0px); }
+    .layer:nth-child(10) { filter: blur(0px); }
+
+    .content {
+      position: relative;
+      z-index: 100;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding-top: 40vh;
+      font-size: 3rem;
+    }
+  </style>
 </head>
 <body>
-    <h1>Hello World</h1>
-    <p>This is a web page.</p>
+
+  <!-- 10 Layers -->
+  <div class="layer" style="background-image: url('images/1.png')"></div>
+  <div class="layer" style="background-image: url('images/2.png')"></div>
+  <div class="layer" style="background-image: url('images/3.png')"></div>
+  <div class="layer" style="background-image: url('images/4.png')"></div>
+  <div class="layer" style="background-image: url('images/5.png')"></div>
+  <div class="layer" style="background-image: url('images/6.png')"></div>
+  <div class="layer" style="background-image: url('images/7.png')"></div>
+  <div class="layer" style="background-image: url('images/8.png')"></div>
+  <div class="layer" style="background-image: url('images/9.png')"></div>
+  <div class="layer" style="background-image: url('images/10.png')"></div>
+
+  <div class="content">
+    Parallax Depth Demo
+  </div>
+
+  <script>
+    const layers = document.querySelectorAll('.layer');
+
+    let mouseX = 0;
+    let mouseY = 0;
+
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5);
+      mouseY = (e.clientY / window.innerHeight - 0.5);
+    });
+
+    function animate() {
+      const scrollY = window.scrollY;
+
+      layers.forEach((layer, index) => {
+        const depth = (index + 1) * 20;
+
+        const x = mouseX * depth;
+        const y = mouseY * depth + scrollY * (depth * 0.05);
+
+        layer.style.transform = `translate(${x}px, ${y}px)`;
+      });
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script>
+
 </body>
 </html>
