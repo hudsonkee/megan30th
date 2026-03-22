@@ -12,9 +12,7 @@
     height: 100vh;
     background: black;
   }
-  canvas {
-    display: block;
-  }
+  canvas { display: block; }
 </style>
 </head>
 <body>
@@ -24,11 +22,11 @@
 <script>
 // ===================== CONFIG =====================
 const layersCount = 10;
-let mouseIntensity = 0.0002;  // adjust this to change movement intensity
-const layerScaleFront = 0.05; // subtle scaling for front layers
+const mouseIntensity = 0.05; // lower = subtle movement, increase for more drama
+const layerScaleFront = 0.05; 
 const tileWidth = 1920;
 const tileHeight = 1080;
-const tileBuffer = 1; // extra tiles for smooth tiling
+const tileBuffer = 1;
 
 // ===================== SETUP =====================
 const canvas = document.getElementById('parallaxCanvas');
@@ -40,11 +38,11 @@ canvas.width = width;
 canvas.height = height;
 
 // Mouse tracking
-let targetX = 0, targetY = 0;
-let mouseX = 0, mouseY = 0;
+let mouseX = width/2;
+let mouseY = height/2;
 document.addEventListener('mousemove', e => {
-  targetX = e.clientX;
-  targetY = e.clientY;
+  mouseX = e.clientX;
+  mouseY = e.clientY;
 });
 
 // Load images
@@ -63,28 +61,20 @@ layerFiles.forEach((src, i) => {
     loadedCount++;
     if (loadedCount === layersCount) requestAnimationFrame(draw);
   };
-  layers.push({img, offsetX: 0, offsetY: 0});
+  layers.push({img});
 });
 
 // ===================== DRAW LOOP =====================
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
-  // Smooth mouse movement
-  mouseX += (targetX - mouseX) * 0.05;
-  mouseY += (targetY - mouseY) * 0.05;
-
   layers.forEach((layer, i) => {
     const img = layer.img;
     if (!img.width) return;
 
-    // Incremental offsets using mouseIntensity constant
-    layer.offsetX += (mouseX - width/2) * mouseIntensity * (i+1);
-    layer.offsetY += (mouseY - height/2) * mouseIntensity * (i+1);
-
-    // Wrap offsets for infinite tiling
-    const offsetX = layer.offsetX % tileWidth;
-    const offsetY = layer.offsetY % tileHeight;
+    const depth = (i+1) / layersCount; // front layers move more
+    const offsetX = (mouseX - width/2) * mouseIntensity * depth;
+    const offsetY = (mouseY - height/2) * mouseIntensity * depth;
 
     const scale = 1 + (i / layersCount) * layerScaleFront;
     ctx.save();
