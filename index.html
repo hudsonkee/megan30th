@@ -30,7 +30,7 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse position normalized (-0.5 to 0.5)
+// Mouse position normalized
 let mouseX = 0;
 let mouseY = 0;
 document.addEventListener('mousemove', e => {
@@ -64,7 +64,7 @@ layerFiles.forEach((src, i) => {
       requestAnimationFrame(draw);
     }
   };
-  layers.push({img});
+  layers.push({img, offsetX: 0, offsetY: 0});
 });
 
 // Animation loop
@@ -75,15 +75,20 @@ function draw() {
     const img = layer.img;
     if (!img.width) return;
 
+    // Dramatic parallax: front layers move more
+    const depth = (i + 1) * 200; // adjust for more drama
+    layer.offsetX += mouseX * depth;
+    layer.offsetY += mouseY * depth;
+
+    // Tile calculation
     const tileW = img.width;
     const tileH = img.height;
 
-    // Calculate dynamic offset based on mouse position
-    const depth = (i + 1) * 200; // adjust for more dramatic parallax
-    const offsetX = (mouseX * depth) % tileW;
-    const offsetY = (mouseY * depth) % tileH;
+    // Wrap offsets to repeat infinitely
+    const offsetX = layer.offsetX % tileW;
+    const offsetY = layer.offsetY % tileH;
 
-    // Number of tiles needed to cover screen
+    // Draw tiles in a grid to fill canvas
     const cols = Math.ceil(width / tileW) + 2;
     const rows = Math.ceil(height / tileH) + 2;
 
@@ -91,8 +96,8 @@ function draw() {
       for (let col = -1; col < cols; col++) {
         ctx.drawImage(
           img,
-          col * tileW - offsetX,
-          row * tileH - offsetY,
+          col * tileW + offsetX,
+          row * tileH + offsetY,
           tileW,
           tileH
         );
@@ -103,7 +108,7 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// Handle resizing
+// Resize handling
 window.addEventListener('resize', () => {
   width = window.innerWidth;
   height = window.innerHeight;
