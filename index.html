@@ -8,8 +8,8 @@
     html, body {
       margin: 0;
       padding: 0;
-      height: 200vh; /* allow scrolling */
-      overflow-x: hidden;
+      height: 100vh;
+      overflow: hidden;
       background: black;
     }
 
@@ -19,21 +19,21 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      pointer-events: none; /* mouse passes through */
+      pointer-events: none;
       will-change: transform;
     }
 
     .layer img {
       width: 100%;
       height: 100%;
-      object-fit: cover; /* fills the viewport while preserving aspect */
+      object-fit: cover;
       display: block;
     }
   </style>
 </head>
 <body>
 
-  <!-- Layer 10 first (back), Layer 1 last (front) -->
+  <!-- Layer 10 at bottom, Layer 1 on top -->
   <div class="layer"><img src="images/10.jpg" alt="Layer 10"></div>
   <div class="layer"><img src="images/9.png" alt="Layer 9"></div>
   <div class="layer"><img src="images/8.png" alt="Layer 8"></div>
@@ -48,26 +48,25 @@
   <script>
     const layers = document.querySelectorAll('.layer');
 
-    // Mouse position
+    // Set z-index: layer 10 = 0, layer 1 = 9
+    layers.forEach((layer, i) => {
+      layer.style.zIndex = i;
+    });
+
+    // Track mouse position relative to center
     let mouseX = 0, mouseY = 0;
     document.addEventListener('mousemove', e => {
       mouseX = (e.clientX / window.innerWidth - 0.5);
       mouseY = (e.clientY / window.innerHeight - 0.5);
     });
 
-    // Animate parallax
     function animate() {
-      const scrollY = window.scrollY;
-
       layers.forEach((layer, i) => {
-        const depth = (i + 1) * 30; // back layers move less
+        const depth = (i + 1) * 20; // farther back = moves less
         const x = mouseX * depth;
-        const y = mouseY * depth + scrollY * (i * 5);
+        const y = mouseY * depth;
 
         layer.style.transform = `translate(${x}px, ${y}px)`;
-
-        // Layer 10 back (zIndex=0), Layer 1 front (zIndex=9)
-        layer.style.zIndex = i;
       });
 
       requestAnimationFrame(animate);
