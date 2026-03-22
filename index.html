@@ -2,17 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Parallax Tiles</title>
+  <title>Parallax</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     html, body {
       margin: 0;
       padding: 0;
+      height: 200vh;
       overflow-x: hidden;
       background: black;
-      height: 200vh; /* allow scrolling */
-      cursor: none;
     }
 
     .layer {
@@ -25,50 +24,46 @@
       background-size: 1920px 1080px;
       will-change: transform;
     }
-
-    /* Optional: slight blur for depth */
-    .layer:nth-child(1) { filter: blur(8px); }
-    .layer:nth-child(2) { filter: blur(6px); }
-    .layer:nth-child(3) { filter: blur(5px); }
-    .layer:nth-child(4) { filter: blur(4px); }
-    .layer:nth-child(5) { filter: blur(3px); }
-    .layer:nth-child(6) { filter: blur(2px); }
-    .layer:nth-child(7) { filter: blur(1px); }
-    .layer:nth-child(8) { filter: blur(0px); }
-    .layer:nth-child(9) { filter: blur(0px); }
-    .layer:nth-child(10) { filter: blur(0px); }
-
-    .content {
-      position: relative;
-      z-index: 100;
-      color: white;
-      font-family: sans-serif;
-      text-align: center;
-      padding-top: 40vh;
-      font-size: 3rem;
-    }
   </style>
 </head>
 <body>
 
-  <!-- 10 Layers -->
-  <div class="layer" style="background-image: url('images/1.png')"></div>
-  <div class="layer" style="background-image: url('images/2.png')"></div>
-  <div class="layer" style="background-image: url('images/3.png')"></div>
-  <div class="layer" style="background-image: url('images/4.png')"></div>
-  <div class="layer" style="background-image: url('images/5.png')"></div>
-  <div class="layer" style="background-image: url('images/6.png')"></div>
-  <div class="layer" style="background-image: url('images/7.png')"></div>
-  <div class="layer" style="background-image: url('images/8.png')"></div>
-  <div class="layer" style="background-image: url('images/9.png')"></div>
-  <div class="layer" style="background-image: url('images/10.jpg')"></div>
-
-  <div class="content">
-    Parallax Depth Demo
-  </div>
+  <!-- Layers (EDIT ONLY FILE NAMES IF NEEDED) -->
+  <div class="layer" data-img="1.png"></div>
+  <div class="layer" data-img="2.png"></div>
+  <div class="layer" data-img="3.png"></div>
+  <div class="layer" data-img="4.png"></div>
+  <div class="layer" data-img="5.png"></div>
+  <div class="layer" data-img="6.png"></div>
+  <div class="layer" data-img="7.png"></div>
+  <div class="layer" data-img="8.png"></div>
+  <div class="layer" data-img="9.png"></div>
+  <div class="layer" data-img="10.png"></div>
 
   <script>
     const layers = document.querySelectorAll('.layer');
+
+    // 🔥 IMPORTANT: this is the ONLY place that sets the path
+    const IMAGE_PATH = 'images/';
+
+    // Load images safely with fallback color if missing
+    layers.forEach((layer, i) => {
+      const file = layer.dataset.img;
+      const url = IMAGE_PATH + file;
+
+      const img = new Image();
+      img.src = url;
+
+      img.onload = () => {
+        layer.style.backgroundImage = `url('${url}')`;
+      };
+
+      img.onerror = () => {
+        console.error("Missing:", url);
+        // fallback so you SEE the layer even if image fails
+        layer.style.background = `hsl(${i * 36}, 70%, 50%)`;
+      };
+    });
 
     let mouseX = 0;
     let mouseY = 0;
@@ -81,13 +76,17 @@
     function animate() {
       const scrollY = window.scrollY;
 
-      layers.forEach((layer, index) => {
-        const depth = (index + 1) * 20;
+      layers.forEach((layer, i) => {
+        const depth = (i + 1) * 50;
 
         const x = mouseX * depth;
-        const y = mouseY * depth + scrollY * (depth * 0.05);
+        const y = mouseY * depth + scrollY * (i * 8);
+        const scale = 1 + i * 0.05;
 
-        layer.style.transform = `translate(${x}px, ${y}px)`;
+        layer.style.transform = `
+          translate(${x}px, ${y}px)
+          scale(${scale})
+        `;
       });
 
       requestAnimationFrame(animate);
