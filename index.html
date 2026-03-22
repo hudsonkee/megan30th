@@ -30,7 +30,7 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse position normalized
+// Mouse position normalized (-0.5 to 0.5)
 let mouseX = 0;
 let mouseY = 0;
 document.addEventListener('mousemove', e => {
@@ -64,7 +64,7 @@ layerFiles.forEach((src, i) => {
       requestAnimationFrame(draw);
     }
   };
-  layers.push({img, offsetX: 0, offsetY: 0});
+  layers.push({img});
 });
 
 // Animation loop
@@ -75,20 +75,15 @@ function draw() {
     const img = layer.img;
     if (!img.width) return;
 
-    // Dramatic parallax: front layers move more
-    const depth = (i + 1) * 200; // adjust for more drama
-    layer.offsetX += mouseX * depth;
-    layer.offsetY += mouseY * depth;
-
-    // Tile calculation
     const tileW = img.width;
     const tileH = img.height;
 
-    // Wrap offsets to repeat infinitely
-    const offsetX = layer.offsetX % tileW;
-    const offsetY = layer.offsetY % tileH;
+    // Calculate dynamic offset based on mouse position
+    const depth = (i + 1) * 200; // adjust for more dramatic parallax
+    const offsetX = (mouseX * depth) % tileW;
+    const offsetY = (mouseY * depth) % tileH;
 
-    // Draw tiles in a grid to fill canvas
+    // Number of tiles needed to cover screen
     const cols = Math.ceil(width / tileW) + 2;
     const rows = Math.ceil(height / tileH) + 2;
 
@@ -96,8 +91,8 @@ function draw() {
       for (let col = -1; col < cols; col++) {
         ctx.drawImage(
           img,
-          col * tileW + offsetX,
-          row * tileH + offsetY,
+          col * tileW - offsetX,
+          row * tileH - offsetY,
           tileW,
           tileH
         );
@@ -108,7 +103,7 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// Resize handling
+// Handle resizing
 window.addEventListener('resize', () => {
   width = window.innerWidth;
   height = window.innerHeight;
@@ -116,345 +111,6 @@ window.addEventListener('resize', () => {
   canvas.height = height;
 });
 </script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Megan 30th Infinite Tiled Parallax</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow: hidden;
-    background: black;
-  }
-
-  .layer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 500vw;  /* much bigger than viewport */
-    height: 500vh;
-    pointer-events: none;
-    will-change: transform;
-
-    background-repeat: repeat;
-    background-size: 300px 300px;  /* size of each tile */
-    background-position: center;
-    transform-origin: center center;
-  }
-</style>
-</head>
-<body>
-
-<!-- 10 layers -->
-<div class="layer" style="background-image: url('images/10.jpg');"></div>
-<div class="layer" style="background-image: url('images/9.png');"></div>
-<div class="layer" style="background-image: url('images/8.png');"></div>
-<div class="layer" style="background-image: url('images/7.png');"></div>
-<div class="layer" style="background-image: url('images/6.png');"></div>
-<div class="layer" style="background-image: url('images/5.png');"></div>
-<div class="layer" style="background-image: url('images/4.png');"></div>
-<div class="layer" style="background-image: url('images/3.png');"></div>
-<div class="layer" style="background-image: url('images/2.png');"></div>
-<div class="layer" style="background-image: url('images/1.png');"></div>
-
-<script>
-const layers = document.querySelectorAll('.layer');
-
-// Z-index: 10 back, 1 front
-layers.forEach((layer, i) => {
-  layer.style.zIndex = i;
-});
-
-let mouseX = 0, mouseY = 0;
-let targetX = 0, targetY = 0;
-const ease = 0.1;
-
-// Initial offset so layers start centered
-const centerX = -2 * window.innerWidth;
-const centerY = -2 * window.innerHeight;
-
-document.addEventListener('mousemove', e => {
-  targetX = (e.clientX / window.innerWidth - 0.5);
-  targetY = (e.clientY / window.innerHeight - 0.5);
-});
-
-function animate() {
-  mouseX += (targetX - mouseX) * ease;
-  mouseY += (targetY - mouseY) * ease;
-
-  layers.forEach((layer, i) => {
-    const depth = (i + 1) * 250; // dramatic multiplier
-    const x = centerX + mouseX * depth;
-    const y = centerY + mouseY * depth;
-
-    layer.style.transform = `translate(${x}px, ${y}px)`;
-  });
-
-  requestAnimationFrame(animate);
-}
-
-animate();
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Megan 30th Tiled Parallax</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow: hidden;
-    background: black;
-  }
-
-  .layer {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    will-change: transform;
-
-    /* Tile the image */
-    background-repeat: repeat;
-    background-size: 300px 300px; /* each image is smaller, tiled */
-    background-position: center;
-  }
-</style>
-</head>
-<body>
-
-<!-- 10 layers: 10 back, 1 front -->
-<div class="layer" style="background-image: url('images/10.jpg');"></div>
-<div class="layer" style="background-image: url('images/9.png');"></div>
-<div class="layer" style="background-image: url('images/8.png');"></div>
-<div class="layer" style="background-image: url('images/7.png');"></div>
-<div class="layer" style="background-image: url('images/6.png');"></div>
-<div class="layer" style="background-image: url('images/5.png');"></div>
-<div class="layer" style="background-image: url('images/4.png');"></div>
-<div class="layer" style="background-image: url('images/3.png');"></div>
-<div class="layer" style="background-image: url('images/2.png');"></div>
-<div class="layer" style="background-image: url('images/1.png');"></div>
-
-<script>
-const layers = document.querySelectorAll('.layer');
-
-// Z-index: layer 10 back, 1 front
-layers.forEach((layer, i) => {
-  layer.style.zIndex = i;
-});
-
-let mouseX = 0, mouseY = 0;
-let targetX = 0, targetY = 0;
-const ease = 0.1;
-
-document.addEventListener('mousemove', e => {
-  targetX = (e.clientX / window.innerWidth - 0.5);
-  targetY = (e.clientY / window.innerHeight - 0.5);
-});
-
-function animate() {
-  mouseX += (targetX - mouseX) * ease;
-  mouseY += (targetY - mouseY) * ease;
-
-  layers.forEach((layer, i) => {
-    // Super dramatic parallax multiplier
-    const depth = (i + 1) * 250; // bigger for more dramatic movement
-    const x = mouseX * depth;
-    const y = mouseY * depth;
-
-    layer.style.transform = `translate(${x}px, ${y}px)`;
-  });
-
-  requestAnimationFrame(animate);
-}
-
-animate();
-</script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Megan 30th Parallax - Tiled</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      overflow: hidden;
-      background: black;
-    }
-
-    .layer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      will-change: transform;
-      transform-origin: center center;
-
-      /* Tiling */
-      background-repeat: repeat;
-      background-size: auto;   /* original image size */
-      background-position: center;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- 10 layers: 10 = back, 1 = front -->
-  <div class="layer" style="background-image: url('images/10.jpg');"></div>
-  <div class="layer" style="background-image: url('images/9.png');"></div>
-  <div class="layer" style="background-image: url('images/8.png');"></div>
-  <div class="layer" style="background-image: url('images/7.png');"></div>
-  <div class="layer" style="background-image: url('images/6.png');"></div>
-  <div class="layer" style="background-image: url('images/5.png');"></div>
-  <div class="layer" style="background-image: url('images/4.png');"></div>
-  <div class="layer" style="background-image: url('images/3.png');"></div>
-  <div class="layer" style="background-image: url('images/2.png');"></div>
-  <div class="layer" style="background-image: url('images/1.png');"></div>
-
-  <script>
-    const layers = document.querySelectorAll('.layer');
-
-    // z-index: 10 back, 1 front
-    layers.forEach((layer, i) => {
-      layer.style.zIndex = i;
-    });
-
-    let mouseX = 0, mouseY = 0;
-    let targetX = 0, targetY = 0;
-    const ease = 0.1;
-
-    document.addEventListener('mousemove', e => {
-      targetX = (e.clientX / window.innerWidth - 0.5);
-      targetY = (e.clientY / window.innerHeight - 0.5);
-    });
-
-    function animate() {
-      mouseX += (targetX - mouseX) * ease;
-      mouseY += (targetY - mouseY) * ease;
-
-      layers.forEach((layer, i) => {
-        // Super dramatic parallax multiplier
-        const depth = (i + 1) * 200; // back layers small, front layers huge
-        const x = mouseX * depth;
-        const y = mouseY * depth;
-
-        // Optional: scale front layers slightly for 3D effect
-        const scale = 1 + (i / layers.length) * 0.3; // 1.0 -> 1.3
-
-        layer.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
-      });
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-  </script>
-
-</body>
-</html><!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Megan 30th Parallax</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      overflow: hidden;
-      background: black;
-    }
-
-    .layer {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      pointer-events: none;
-      will-change: transform;
-    }
-
-    .layer img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Layer 10 back, Layer 1 front -->
-  <div class="layer"><img src="images/10.jpg" alt="Layer 10"></div>
-  <div class="layer"><img src="images/9.png" alt="Layer 9"></div>
-  <div class="layer"><img src="images/8.png" alt="Layer 8"></div>
-  <div class="layer"><img src="images/7.png" alt="Layer 7"></div>
-  <div class="layer"><img src="images/6.png" alt="Layer 6"></div>
-  <div class="layer"><img src="images/5.png" alt="Layer 5"></div>
-  <div class="layer"><img src="images/4.png" alt="Layer 4"></div>
-  <div class="layer"><img src="images/3.png" alt="Layer 3"></div>
-  <div class="layer"><img src="images/2.png" alt="Layer 2"></div>
-  <div class="layer"><img src="images/1.png" alt="Layer 1"></div>
-
-  <script>
-    const layers = document.querySelectorAll('.layer');
-
-    // Set z-index so layer 10 = back, layer 1 = front
-    layers.forEach((layer, i) => {
-      layer.style.zIndex = i;
-    });
-
-    // Track mouse position
-    let mouseX = 0, mouseY = 0;
-    let targetX = 0, targetY = 0;
-    const ease = 0.1; // smoothing factor
-
-    document.addEventListener('mousemove', e => {
-      targetX = (e.clientX / window.innerWidth - 0.5);
-      targetY = (e.clientY / window.innerHeight - 0.5);
-    });
-
-    function animate() {
-      // Smooth interpolation for easing
-      mouseX += (targetX - mouseX) * ease;
-      mouseY += (targetY - mouseY) * ease;
-
-      layers.forEach((layer, i) => {
-        // Dramatic movement multiplier, but small enough to stay on screen
-        const depth = (i + 1) * 200; 
-        const x = mouseX * depth;
-        const y = mouseY * depth;
-
-        layer.style.transform = `translate(${x}px, ${y}px)`;
-      });
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-  </script>
 
 </body>
 </html>
