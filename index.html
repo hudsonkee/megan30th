@@ -12,25 +12,25 @@ canvas { display:block; }
 <body>
 
 
-  
 <div style="
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  background: rgba(0,0,0,0.5);
-  padding: 1px;      /* makes container bigger */
+  background: transparent;  /* fully see-through */
+  padding: 0;              /* optional, remove extra space */
 ">
   <audio id="audioPlayer" controls autoplay loop style="
     display: block;
-    width: 400px;     /* increase width for bigger player */
+    width: 400px;           /* adjust width as needed */
   ">
     <source src="song.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
 </div>
 
+  
   
 <canvas id="parallaxCanvas"></canvas>
 
