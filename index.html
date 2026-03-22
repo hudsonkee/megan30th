@@ -24,9 +24,11 @@
 <script>
 // ===================== CONFIG =====================
 const layersCount = 10;
-const mouseIntensity = 2;  // smaller = smoother/slower, larger = more dramatic
-const layerScaleFront = 0.1; // subtle scale for front layers
-const tileBuffer = 1; // extra tiles to draw offscreen
+const mouseIntensity = 1.5;  // adjust for more/less movement
+const layerScaleFront = 0.05; // subtle scale for front layers
+const tileWidth = 1920;       // width of each image
+const tileHeight = 1080;      // height of each image
+const tileBuffer = 1;         // extra tiles for infinite tiling
 
 // ===================== SETUP =====================
 const canvas = document.getElementById('parallaxCanvas');
@@ -76,35 +78,33 @@ function draw() {
     const img = layer.img;
     if (!img.width) return;
 
-    // Calculate layer depth for parallax
-    const depth = ((i + 1) / layersCount) * mouseIntensity * 300; // multiplier for movement
+    // Layer depth for parallax
+    const depth = ((i + 1) / layersCount) * mouseIntensity * 300;
 
-    // Incremental offset for “floating” effect
+    // Incremental offsets
     layer.offsetX += (mouseX - width/2) * 0.01 * (i+1); 
     layer.offsetY += (mouseY - height/2) * 0.01 * (i+1); 
 
-    const tileW = width;  // full-screen start
-    const tileH = height;
-
-    // Wrap offsets to repeat infinitely
-    const offsetX = layer.offsetX % tileW;
-    const offsetY = layer.offsetY % tileH;
+    // Wrap offsets for infinite tiling
+    const offsetX = layer.offsetX % tileWidth;
+    const offsetY = layer.offsetY % tileHeight;
 
     const scale = 1 + (i / layersCount) * layerScaleFront;
     ctx.save();
     ctx.scale(scale, scale);
 
-    const cols = Math.ceil(width / tileW) + tileBuffer;
-    const rows = Math.ceil(height / tileH) + tileBuffer;
+    // Calculate how many tiles needed
+    const cols = Math.ceil(width / tileWidth / scale) + tileBuffer;
+    const rows = Math.ceil(height / tileHeight / scale) + tileBuffer;
 
     for (let row = -tileBuffer; row < rows; row++) {
       for (let col = -tileBuffer; col < cols; col++) {
         ctx.drawImage(
           img,
-          col * tileW - offsetX,
-          row * tileH - offsetY,
-          tileW,
-          tileH
+          col * tileWidth - offsetX,
+          row * tileHeight - offsetY,
+          tileWidth,
+          tileHeight
         );
       }
     }
