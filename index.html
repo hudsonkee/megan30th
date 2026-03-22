@@ -28,23 +28,23 @@
 </head>
 <body>
 
-  <!-- Parallax layers -->
-  <div class="layer" data-img="1.png"></div>
-  <div class="layer" data-img="2.png"></div>
-  <div class="layer" data-img="3.png"></div>
-  <div class="layer" data-img="4.png"></div>
-  <div class="layer" data-img="5.png"></div>
-  <div class="layer" data-img="6.png"></div>
-  <div class="layer" data-img="7.png"></div>
-  <div class="layer" data-img="8.png"></div>
-  <div class="layer" data-img="9.png"></div>
+  <!-- Parallax layers: layer 10 first (back), layer 1 last (front) -->
   <div class="layer" data-img="10.jpg"></div>
+  <div class="layer" data-img="9.png"></div>
+  <div class="layer" data-img="8.png"></div>
+  <div class="layer" data-img="7.png"></div>
+  <div class="layer" data-img="6.png"></div>
+  <div class="layer" data-img="5.png"></div>
+  <div class="layer" data-img="4.png"></div>
+  <div class="layer" data-img="3.png"></div>
+  <div class="layer" data-img="2.png"></div>
+  <div class="layer" data-img="1.png"></div>
 
   <script>
     const layers = document.querySelectorAll('.layer');
     const IMAGE_PATH = 'images/'; // relative to index.html
 
-    // Load all images
+    // Load images
     layers.forEach(layer => {
       const file = layer.dataset.img;
       const url = IMAGE_PATH + file;
@@ -74,17 +74,15 @@
       const scrollY = window.scrollY;
 
       layers.forEach((layer, i) => {
-        const depth = (i + 1) * 50; // layer separation
-
+        const depth = (i + 1) * 50; // stronger separation
         const x = mouseX * depth;
         const y = mouseY * depth + scrollY * (i * 8);
+        const scale = 1;
 
-        const scale = 1; // no scaling to avoid blur
+        layer.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
 
-        layer.style.transform = `
-          translate(${x}px, ${y}px)
-          scale(${scale})
-        `;
+        // Reverse z-index: last layer in DOM (layer 1) is on top
+        layer.style.zIndex = layers.length - i;
       });
 
       requestAnimationFrame(animate);
