@@ -11,11 +11,13 @@ canvas { display:block; }
 </head>
 <body>
 
+
   
 <audio id="audioPlayer" controls autoplay loop style="
   position: absolute;
-  top: 20px;
-  left: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 9999;           /* ensures it’s above the canvas */
   background: rgba(0,0,0,0.5);
   padding: 5px;
@@ -24,6 +26,7 @@ canvas { display:block; }
   <source src="song.mp3" type="audio/mpeg">
   Your browser does not support the audio element.
 </audio>
+
   
   
 <canvas id="parallaxCanvas"></canvas>
