@@ -22,11 +22,11 @@
 <script>
 // ===================== CONFIG =====================
 const layersCount = 10;
-const mouseIntensity = 40; // lower = subtle movement, increase for more drama
-const layerScaleFront = 0.05; 
+const mouseIntensity = 0.1;        // moderate movement intensity
+const layerScaleFront = 0.05;      // subtle scale for front layers
 const tileWidth = 1920;
 const tileHeight = 1080;
-const tileBuffer = 1;
+const tileBuffer = 1;              // extra tiles to cover edges
 
 // ===================== SETUP =====================
 const canvas = document.getElementById('parallaxCanvas');
@@ -37,7 +37,7 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse tracking
+// Track mouse
 let mouseX = width/2;
 let mouseY = height/2;
 document.addEventListener('mousemove', e => {
@@ -45,7 +45,7 @@ document.addEventListener('mousemove', e => {
   mouseY = e.clientY;
 });
 
-// Load images
+// Load layer images
 const layerFiles = [
   'images/10.jpg','images/9.png','images/8.png','images/7.png','images/6.png',
   'images/5.png','images/4.png','images/3.png','images/2.png','images/1.png'
@@ -72,7 +72,10 @@ function draw() {
     const img = layer.img;
     if (!img.width) return;
 
-    const depth = (i+1) / layersCount; // front layers move more
+    // Layer depth: front layers move more
+    const depth = ((i+1)/layersCount) * 2;
+
+    // Compute offsets proportional to mouse distance from center
     const offsetX = (mouseX - width/2) * mouseIntensity * depth;
     const offsetY = (mouseY - height/2) * mouseIntensity * depth;
 
