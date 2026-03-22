@@ -71,7 +71,7 @@ function draw() {
     const tileH = img.height;
 
     // Very dramatic parallax: front layers move more
-    const depth = (i+1) * 7; // 5 = multiplier per pixel movement
+    const depth = (i+1) * 5; // 5 = multiplier per pixel movement
     const offsetX = (mouseX - width/2) * depth % tileW;
     const offsetY = (mouseY - height/2) * depth % tileH;
 
