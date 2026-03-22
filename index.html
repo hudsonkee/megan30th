@@ -33,7 +33,7 @@
 </head>
 <body>
 
-  <!-- Layer 10 at bottom, Layer 1 on top -->
+  <!-- Layer 10 back, Layer 1 front -->
   <div class="layer"><img src="images/10.jpg" alt="Layer 10"></div>
   <div class="layer"><img src="images/9.png" alt="Layer 9"></div>
   <div class="layer"><img src="images/8.png" alt="Layer 8"></div>
@@ -48,21 +48,29 @@
   <script>
     const layers = document.querySelectorAll('.layer');
 
-    // Set z-index: layer 10 = 0, layer 1 = 9
+    // Set z-index so layer 10 = back, layer 1 = front
     layers.forEach((layer, i) => {
       layer.style.zIndex = i;
     });
 
-    // Track mouse position relative to center
+    // Track mouse position
     let mouseX = 0, mouseY = 0;
+    let targetX = 0, targetY = 0;
+    const ease = 0.1; // smoothing factor
+
     document.addEventListener('mousemove', e => {
-      mouseX = (e.clientX / window.innerWidth - 0.5);
-      mouseY = (e.clientY / window.innerHeight - 0.5);
+      targetX = (e.clientX / window.innerWidth - 0.5);
+      targetY = (e.clientY / window.innerHeight - 0.5);
     });
 
     function animate() {
+      // Smooth interpolation for easing
+      mouseX += (targetX - mouseX) * ease;
+      mouseY += (targetY - mouseY) * ease;
+
       layers.forEach((layer, i) => {
-        const depth = (i + 1) * 20; // farther back = moves less
+        // Dramatic movement multiplier, but small enough to stay on screen
+        const depth = (i + 1) * 40; 
         const x = mouseX * depth;
         const y = mouseY * depth;
 
