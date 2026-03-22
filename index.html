@@ -5,14 +5,8 @@
 <title>Megan 30th Infinite Parallax</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    height: 100vh;
-    background: black;
-  }
-  canvas { display: block; }
+html, body { margin:0; padding:0; overflow:hidden; height:100vh; background:black; }
+canvas { display:block; }
 </style>
 </head>
 <body>
@@ -20,15 +14,15 @@
 <canvas id="parallaxCanvas"></canvas>
 
 <script>
-// ===================== CONFIG =====================
+// CONFIG
 const layersCount = 10;
-const mouseIntensity = 0.1;        // moderate movement intensity
-const layerScaleFront = 0.05;      // subtle scale for front layers
+const mouseIntensity = 0.08; // moderate movement
+const layerScaleFront = 0.05;
 const tileWidth = 1920;
 const tileHeight = 1080;
-const tileBuffer = 1;              // extra tiles to cover edges
+const tileBuffer = 1;
 
-// ===================== SETUP =====================
+// SETUP
 const canvas = document.getElementById('parallaxCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -37,20 +31,19 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Track mouse
-let mouseX = width/2;
-let mouseY = height/2;
+// Mouse tracking with easing
+let targetX = width/2, targetY = height/2;
+let mouseX = width/2, mouseY = height/2;
 document.addEventListener('mousemove', e => {
-  mouseX = e.clientX;
-  mouseY = e.clientY;
+  targetX = e.clientX;
+  targetY = e.clientY;
 });
 
-// Load layer images
+// Load images
 const layerFiles = [
   'images/10.jpg','images/9.png','images/8.png','images/7.png','images/6.png',
   'images/5.png','images/4.png','images/3.png','images/2.png','images/1.png'
 ];
-
 const layers = [];
 let loadedCount = 0;
 
@@ -59,25 +52,33 @@ layerFiles.forEach((src, i) => {
   img.src = src;
   img.onload = () => {
     loadedCount++;
-    if (loadedCount === layersCount) requestAnimationFrame(draw);
+    if(loadedCount === layersCount) requestAnimationFrame(draw);
   };
   layers.push({img});
 });
 
-// ===================== DRAW LOOP =====================
+// DRAW LOOP
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
+  // Smooth mouse easing
+  mouseX += (targetX - mouseX) * 0.08;
+  mouseY += (targetY - mouseY) * 0.08;
+
   layers.forEach((layer, i) => {
     const img = layer.img;
-    if (!img.width) return;
+    if(!img.width) return;
 
-    // Layer depth: front layers move more
+    // Depth for parallax
     const depth = ((i+1)/layersCount) * 2;
 
-    // Compute offsets proportional to mouse distance from center
-    const offsetX = (mouseX - width/2) * mouseIntensity * depth;
-    const offsetY = (mouseY - height/2) * mouseIntensity * depth;
+    // Compute offsets directly
+    let offsetX = (mouseX - width/2) * mouseIntensity * depth;
+    let offsetY = (mouseY - height/2) * mouseIntensity * depth;
+
+    // Wrap offsets for infinite tiling
+    offsetX = offsetX % tileWidth;
+    offsetY = offsetY % tileHeight;
 
     const scale = 1 + (i / layersCount) * layerScaleFront;
     ctx.save();
@@ -86,12 +87,12 @@ function draw() {
     const cols = Math.ceil(width / tileWidth / scale) + tileBuffer;
     const rows = Math.ceil(height / tileHeight / scale) + tileBuffer;
 
-    for (let row = -tileBuffer; row < rows; row++) {
-      for (let col = -tileBuffer; col < cols; col++) {
+    for(let row=-tileBuffer; row<rows; row++){
+      for(let col=-tileBuffer; col<cols; col++){
         ctx.drawImage(
           img,
-          col * tileWidth - offsetX,
-          row * tileHeight - offsetY,
+          col*tileWidth - offsetX,
+          row*tileHeight - offsetY,
           tileWidth,
           tileHeight
         );
@@ -104,8 +105,8 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// ===================== RESIZE HANDLER =====================
-window.addEventListener('resize', () => {
+// RESIZE HANDLER
+window.addEventListener('resize', ()=>{
   width = window.innerWidth;
   height = window.innerHeight;
   canvas.width = width;
