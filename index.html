@@ -19,39 +19,34 @@
       left: 0;
       width: 100vw;
       height: 100vh;
-      background-repeat: no-repeat;
-      background-size: cover;
+      pointer-events: none; /* mouse passes through */
       will-change: transform;
+    }
+
+    .layer img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover; /* fills the viewport while preserving aspect */
+      display: block;
     }
   </style>
 </head>
 <body>
 
-  <!-- Layer 10 = back, Layer 1 = front -->
-  <div class="layer" data-img="10.jpg"></div>
-  <div class="layer" data-img="9.png"></div>
-  <div class="layer" data-img="8.png"></div>
-  <div class="layer" data-img="7.png"></div>
-  <div class="layer" data-img="6.png"></div>
-  <div class="layer" data-img="5.png"></div>
-  <div class="layer" data-img="4.png"></div>
-  <div class="layer" data-img="3.png"></div>
-  <div class="layer" data-img="2.png"></div>
-  <div class="layer" data-img="1.png"></div>
+  <!-- Layer 10 first (back), Layer 1 last (front) -->
+  <div class="layer"><img src="images/10.jpg" alt="Layer 10"></div>
+  <div class="layer"><img src="images/9.png" alt="Layer 9"></div>
+  <div class="layer"><img src="images/8.png" alt="Layer 8"></div>
+  <div class="layer"><img src="images/7.png" alt="Layer 7"></div>
+  <div class="layer"><img src="images/6.png" alt="Layer 6"></div>
+  <div class="layer"><img src="images/5.png" alt="Layer 5"></div>
+  <div class="layer"><img src="images/4.png" alt="Layer 4"></div>
+  <div class="layer"><img src="images/3.png" alt="Layer 3"></div>
+  <div class="layer"><img src="images/2.png" alt="Layer 2"></div>
+  <div class="layer"><img src="images/1.png" alt="Layer 1"></div>
 
   <script>
     const layers = document.querySelectorAll('.layer');
-    const IMAGE_PATH = 'images/'; // relative to index.html
-
-    // Load images
-    layers.forEach(layer => {
-      const file = layer.dataset.img;
-      const url = IMAGE_PATH + file;
-      const img = new Image();
-      img.src = url;
-      img.onload = () => layer.style.backgroundImage = `url('${url}')`;
-      img.onerror = () => console.error("Missing image:", url);
-    });
 
     // Mouse position
     let mouseX = 0, mouseY = 0;
@@ -65,13 +60,13 @@
       const scrollY = window.scrollY;
 
       layers.forEach((layer, i) => {
-        const depth = (i + 1) * 50; // parallax multiplier
+        const depth = (i + 1) * 30; // back layers move less
         const x = mouseX * depth;
-        const y = mouseY * depth + scrollY * (i * 8);
+        const y = mouseY * depth + scrollY * (i * 5);
 
-        layer.style.transform = `translate(${x}px, ${y}px) scale(1)`;
+        layer.style.transform = `translate(${x}px, ${y}px)`;
 
-        // Back = 0, Front = highest z-index
+        // Layer 10 back (zIndex=0), Layer 1 front (zIndex=9)
         layer.style.zIndex = i;
       });
 
