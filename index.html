@@ -91,7 +91,7 @@ function draw() {
     if(!img.width) return;
 
     // Depth for parallax (front layers move more)
-    const depth = ((i+1)/layersCount) * 4; // increased multiplier for stronger scroll
+    const depth = ((i+1)/layersCount) * 3; // increased multiplier for stronger scroll
 
     // Compute offsets
     let offsetX = (mouseX - width/2) * mouseIntensity * depth;
