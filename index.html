@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Parallax</title>
+  <title>Megan 30th Parallax</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      height: 200vh;
+      height: 200vh; /* allow scrolling */
       overflow-x: hidden;
       background: black;
     }
@@ -28,7 +28,7 @@
 </head>
 <body>
 
-  <!-- Layers (EDIT ONLY FILE NAMES IF NEEDED) -->
+  <!-- Parallax layers -->
   <div class="layer" data-img="1.png"></div>
   <div class="layer" data-img="2.png"></div>
   <div class="layer" data-img="3.png"></div>
@@ -42,12 +42,10 @@
 
   <script>
     const layers = document.querySelectorAll('.layer');
+    const IMAGE_PATH = 'images/'; // relative to index.html
 
-    // 🔥 IMPORTANT: this is the ONLY place that sets the path
-    const IMAGE_PATH = 'images/';
-
-    // Load images safely with fallback color if missing
-    layers.forEach((layer, i) => {
+    // Load all images
+    layers.forEach(layer => {
       const file = layer.dataset.img;
       const url = IMAGE_PATH + file;
 
@@ -59,29 +57,29 @@
       };
 
       img.onerror = () => {
-        console.error("Missing:", url);
-        // fallback so you SEE the layer even if image fails
-        layer.style.background = `hsl(${i * 36}, 70%, 50%)`;
+        console.error("Missing image:", url);
+        // No fallback color — layer just won't appear if missing
       };
     });
 
-    let mouseX = 0;
-    let mouseY = 0;
-
-    document.addEventListener('mousemove', (e) => {
+    // Mouse position
+    let mouseX = 0, mouseY = 0;
+    document.addEventListener('mousemove', e => {
       mouseX = (e.clientX / window.innerWidth - 0.5);
       mouseY = (e.clientY / window.innerHeight - 0.5);
     });
 
+    // Animate parallax
     function animate() {
       const scrollY = window.scrollY;
 
       layers.forEach((layer, i) => {
-        const depth = (i + 1) * 50;
+        const depth = (i + 1) * 50; // layer separation
 
         const x = mouseX * depth;
         const y = mouseY * depth + scrollY * (i * 8);
-        const scale = 1 + i * 0.05;
+
+        const scale = 1; // no scaling to avoid blur
 
         layer.style.transform = `
           translate(${x}px, ${y}px)
