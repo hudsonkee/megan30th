@@ -2,19 +2,17 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Megan 30th Infinite Parallax Canvas</title>
+<title>Megan 30th Infinite Parallax</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    height: 100vh;
-    background: black;
-  }
-  canvas {
-    display: block;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  background: black;
+}
+canvas { display: block; }
 </style>
 </head>
 <body>
@@ -23,9 +21,9 @@
 
 <script>
 // ===================== CONFIG =====================
-const mouseMultiplier = 5; // adjust this for how much layers move per mouse movement
-const maxDepth = 200;      // max multiplier for front layers
-const layersCount = 10;
+const mouseIntensity = 8;  // ↑ change this for more/less dramatic movement
+const layerScaleFront = 0.3; // 0 = no scaling, 0.3 = front layer slightly bigger
+const tileSize = 300; // each tile size in pixels
 
 // ===================== SETUP =====================
 const canvas = document.getElementById('parallaxCanvas');
@@ -36,12 +34,12 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse position normalized (-0.5 to 0.5)
-let mouseX = 0;
-let mouseY = 0;
+// Mouse tracking
+let targetX = 0, targetY = 0;
+let mouseX = 0, mouseY = 0;
 document.addEventListener('mousemove', e => {
-  mouseX = e.clientX / width - 0.5;
-  mouseY = e.clientY / height - 0.5;
+  targetX = e.clientX;
+  targetY = e.clientY;
 });
 
 // Load images
@@ -58,48 +56,56 @@ layerFiles.forEach((src, i) => {
   img.src = src;
   img.onload = () => {
     loadedCount++;
-    if (loadedCount === layersCount) requestAnimationFrame(draw);
+    if (loadedCount === layerFiles.length) requestAnimationFrame(draw);
   };
-  layers.push({img, offsetX: 0, offsetY: 0});
+  layers.push({img});
 });
 
 // ===================== DRAW LOOP =====================
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
+  // Smooth mouse movement
+  mouseX += (targetX - mouseX) * 0.1;
+  mouseY += (targetY - mouseY) * 0.1;
+
   layers.forEach((layer, i) => {
     const img = layer.img;
     if (!img.width) return;
 
-    const tileW = img.width;
-    const tileH = img.height;
+    // Tile width/height
+    const tileW = tileSize;
+    const tileH = tileSize;
 
-    // Dramatic parallax per layer
-    const depth = ((i + 1) / layersCount) * maxDepth;
+    // Dramatic parallax: multiply mouse offset
+    const depth = (i + 1) * mouseIntensity;
 
-    // Incremental offset
-    layer.offsetX += mouseX * mouseMultiplier * depth;
-    layer.offsetY += mouseY * mouseMultiplier * depth;
+    // Calculate offsets from center
+    const offsetX = (mouseX - width/2) * depth % tileW;
+    const offsetY = (mouseY - height/2) * depth % tileH;
 
-    // Wrap offsets for infinite tiling
-    const offsetX = layer.offsetX % tileW;
-    const offsetY = layer.offsetY % tileH;
+    // Optional scaling for front layers
+    const scale = 1 + (i / layers.length) * layerScaleFront;
+    ctx.save();
+    ctx.scale(scale, scale);
 
-    // Number of tiles to cover screen
-    const cols = Math.ceil(width / tileW) + 2;
-    const rows = Math.ceil(height / tileH) + 2;
+    // Calculate number of tiles to cover screen (plus buffer)
+    const cols = Math.ceil(width / tileW / scale) + 2;
+    const rows = Math.ceil(height / tileH / scale) + 2;
 
     for (let row = -1; row < rows; row++) {
       for (let col = -1; col < cols; col++) {
         ctx.drawImage(
           img,
-          col * tileW + offsetX,
-          row * tileH + offsetY,
+          col * tileW - offsetX,
+          row * tileH - offsetY,
           tileW,
           tileH
         );
       }
     }
+
+    ctx.restore();
   });
 
   requestAnimationFrame(draw);
