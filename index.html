@@ -13,23 +13,24 @@ canvas { display:block; }
 
 
   
-<audio id="audioPlayer" controls autoplay loop style="
+<div style="
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  display: block;
-  width: 400px;           /* make it wider */
-  height: 60px;           /* taller for bigger controls */
   z-index: 9999;
   background: rgba(0,0,0,0.5);
-  padding: 10px;
-  border-radius: 8px;
+  padding: 20px;      /* makes container bigger */
+  border-radius: 10px;
 ">
-  <source src="song.mp3" type="audio/mpeg">
-  Your browser does not support the audio element.
-</audio>
-
+  <audio id="audioPlayer" controls autoplay loop style="
+    display: block;
+    width: 400px;     /* increase width for bigger player */
+  ">
+    <source src="song.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+</div>
   
   
 <canvas id="parallaxCanvas"></canvas>
