@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,33 +29,46 @@ canvas {
 </head>
 <body>
 
+<!-- Parallax Canvas -->
 <canvas id="parallaxCanvas"></canvas>
+
+<!-- Webamp Container -->
 <div id="webamp-container"></div>
 
-<!-- Webamp Module -->
+<!-- Webamp Library (module import) -->
 <script type="module">
 import Webamp from "https://unpkg.com/webamp@^2";
 
-// Initialize Webamp with multiple tracks
+// Initialize Webamp
 const webamp = new Webamp({
   initialTracks: [
     {
-      metaData: { artist: "Hudson Lee", title: "Civic Racer" },
-      url: "./song.mp3",
+      metaData: {
+        artist: "Hudson Lee",
+        title: "Civic Racer",
+      },
+      url: "./song.mp3",     // Place your MP3 in the root folder
       duration: 5.322244897959183
     },
     {
-      metaData: { artist: "Hudson Lee", title: "Fairy Lights" },
-      url: "./song2.mp3",
+      metaData: {
+        artist: "Hudson Lee",
+        title: "Fairy Lights",
+      },
+      url: "./song2.mp3",     // Place your MP3 in the root folder
       duration: 5.322244897959183
     },
   ],
-  initialSkin: { url: "./cuteamp.wsz" }
+  initialSkin: {
+    url: "./cuteamp.wsz"     // Your skin file in the root folder
+  }
 });
+
+// Render Webamp inside the floating container
 webamp.renderWhenReady(document.getElementById("webamp-container"));
 </script>
 
-<!-- Optimized Parallax Script -->
+<!-- Parallax Script -->
 <script>
 // CONFIG
 const layersCount = 10;
@@ -62,8 +76,9 @@ const mouseIntensity = 0.8;
 const layerScaleFront = 0.05;
 const tileWidth = 1920;
 const tileHeight = 1080;
+const tileBuffer = 1;
 
-// Canvas setup
+// SETUP
 const canvas = document.getElementById('parallaxCanvas');
 const ctx = canvas.getContext('2d');
 let width = window.innerWidth;
@@ -71,7 +86,6 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse tracking
 let targetX = width/2, targetY = height/2;
 let mouseX = width/2, mouseY = height/2;
 document.addEventListener('mousemove', e => {
@@ -92,62 +106,37 @@ layerFiles.forEach(src => {
   img.src = src;
   img.onload = () => {
     loadedCount++;
-    if (loadedCount === layersCount) initLayers();
+    if (loadedCount === layersCount) requestAnimationFrame(draw);
   };
   layers.push({ img });
 });
 
-// Initialize offscreen canvases for performance
-function initLayers() {
-  layers.forEach(layer => {
-    // Dynamic offscreen canvas: size = enough to cover viewport + buffer
-    const offCanvas = document.createElement('canvas');
-    const offCtx = offCanvas.getContext('2d');
-
-    const tilesX = Math.ceil(width / tileWidth) + 2;
-    const tilesY = Math.ceil(height / tileHeight) + 2;
-    offCanvas.width = tilesX * tileWidth;
-    offCanvas.height = tilesY * tileHeight;
-
-    // Pre-render tiled layer
-    for (let row = 0; row < tilesY; row++) {
-      for (let col = 0; col < tilesX; col++) {
-        offCtx.drawImage(layer.img, col * tileWidth, row * tileHeight, tileWidth, tileHeight);
-      }
-    }
-
-    layer.offCanvas = offCanvas;
-    layer.offsetX = 0;
-    layer.offsetY = 0;
-    layer.tilesX = tilesX;
-    layer.tilesY = tilesY;
-  });
-
-  requestAnimationFrame(draw);
-}
-
-// Draw loop
 function draw() {
   ctx.clearRect(0, 0, width, height);
-
   mouseX += (targetX - mouseX) * 0.08;
   mouseY += (targetY - mouseY) * 0.08;
 
   layers.forEach((layer, i) => {
-    const depth = ((i+1)/layersCount) * 4;
-    layer.offsetX += (mouseX - width/2) * mouseIntensity * depth;
-    layer.offsetY += (mouseY - height/2) * mouseIntensity * depth;
+    const img = layer.img;
+    if (!img.width) return;
 
-    // Wrap offsets for infinite tiling
-    const offX = layer.offsetX % tileWidth;
-    const offY = layer.offsetY % tileHeight;
+    const depth = ((i+1)/layersCount) * 4;
+    let offsetX = (mouseX - width/2) * mouseIntensity * depth;
+    let offsetY = (mouseY - height/2) * mouseIntensity * depth;
+    offsetX = offsetX % tileWidth;
+    offsetY = offsetY % tileHeight;
 
     const scale = 1 + (i / layersCount) * layerScaleFront;
     ctx.save();
     ctx.scale(scale, scale);
 
-    // Draw pre-rendered offscreen canvas at offset
-    ctx.drawImage(layer.offCanvas, -tileWidth + offX, -tileHeight + offY);
+    const cols = Math.ceil(width / tileWidth / scale) + tileBuffer;
+    const rows = Math.ceil(height / tileHeight / scale) + tileBuffer;
+    for (let row = -tileBuffer; row < rows; row++) {
+      for (let col = -tileBuffer; col < cols; col++) {
+        ctx.drawImage(img, col * tileWidth - offsetX, row * tileHeight - offsetY, tileWidth, tileHeight);
+      }
+    }
 
     ctx.restore();
   });
@@ -155,33 +144,11 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// Resize handling
 window.addEventListener('resize', () => {
   width = window.innerWidth;
   height = window.innerHeight;
   canvas.width = width;
   canvas.height = height;
-
-  // Recreate offscreen canvases on resize for performance
-  layers.forEach(layer => {
-    const offCanvas = document.createElement('canvas');
-    const offCtx = offCanvas.getContext('2d');
-
-    const tilesX = Math.ceil(width / tileWidth) + 2;
-    const tilesY = Math.ceil(height / tileHeight) + 2;
-    offCanvas.width = tilesX * tileWidth;
-    offCanvas.height = tilesY * tileHeight;
-
-    for (let row = 0; row < tilesY; row++) {
-      for (let col = 0; col < tilesX; col++) {
-        offCtx.drawImage(layer.img, col * tileWidth, row * tileHeight, tileWidth, tileHeight);
-      }
-    }
-
-    layer.offCanvas = offCanvas;
-    layer.tilesX = tilesX;
-    layer.tilesY = tilesY;
-  });
 });
 </script>
 
