@@ -2,63 +2,61 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Megan 30th Infinite Parallax with Webamp</title>
+<title>Megan 30th Infinite Parallax + Webamp</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    height: 100vh;
-    background: black;
-  }
-  canvas {
-    display: block;
-  }
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100vh;
+  background: black; /* Parallax canvas background */
+}
+canvas {
+  display: block;
+  z-index: 0;
+}
 
-  /* Webamp container centered */
-  #webamp-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-  }
+/* Center Webamp over the canvas */
+#webamp-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+/* Optional: make Webamp background slightly transparent */
+.webamp-root {
+  background: rgba(0,0,0,0.5) !important; /* 50% opacity */
+}
 </style>
 </head>
 <body>
 
-<!-- Parallax canvas -->
 <canvas id="parallaxCanvas"></canvas>
 
-<!-- Container where Webamp will be rendered -->
 <div id="webamp-container"></div>
 
-<!-- Webamp library -->
 <script src="https://unpkg.com/webamp"></script>
-
 <script>
-// ===================== Webamp Setup =====================
-// This initializes Webamp immediately.
-// Browser audio policies may require a user interaction before playing,
-// but the UI will render immediately.
+// --- Webamp Initialization ---
 const webamp = new Webamp({
   initialTracks: [
     {
-      metaData: {
-        artist: "Megan 30th",
-        title: "Track 1"
-      },
-      url: "song.mp3"  // Must be in root (where index.html is)
+      metaData: { artist: "Megan 30th", title: "Track 1" },
+      url: "song.mp3"
     }
   ],
-  // You can optionally load a custom skin:
+  // optional: you can load a custom skin with transparent areas
   // initialSkin: { url: "your-skin.wsz" }
 });
 
+// Render Webamp in the container
 webamp.renderWhenReady(document.getElementById("webamp-container"));
 
-// ===================== Parallax Setup =====================
+// --- Parallax Setup ---
 const layersCount = 10;
 const mouseIntensity = 0.15;
 const layerScaleFront = 0.05;
@@ -74,23 +72,22 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-let targetX = width / 2, targetY = height / 2;
-let mouseX = width / 2, mouseY = height / 2;
+let targetX = width/2, targetY = height/2;
+let mouseX = width/2, mouseY = height/2;
 
 document.addEventListener("mousemove", (e) => {
   targetX = e.clientX;
   targetY = e.clientY;
 });
 
-// Load images
 const layerFiles = [
   'images/10.jpg','images/9.png','images/8.png','images/7.png','images/6.png',
   'images/5.png','images/4.png','images/3.png','images/2.png','images/1.png'
 ];
+
 const layers = [];
 let loadedCount = 0;
-
-layerFiles.forEach((src) => {
+layerFiles.forEach(src => {
   const img = new Image();
   img.src = src;
   img.onload = () => {
@@ -102,8 +99,6 @@ layerFiles.forEach((src) => {
 
 function draw() {
   ctx.clearRect(0, 0, width, height);
-
-  // Smooth mouse easing
   mouseX += (targetX - mouseX) * 0.08;
   mouseY += (targetY - mouseY) * 0.08;
 
@@ -111,11 +106,9 @@ function draw() {
     const img = layer.img;
     if (!img.width) return;
 
-    const depth = ((i + 1) / layersCount) * 3;
-
-    let offsetX = (mouseX - width / 2) * mouseIntensity * depth;
-    let offsetY = (mouseY - height / 2) * mouseIntensity * depth;
-
+    const depth = ((i+1)/layersCount) * 3;
+    let offsetX = (mouseX - width/2) * mouseIntensity * depth;
+    let offsetY = (mouseY - height/2) * mouseIntensity * depth;
     offsetX = offsetX % tileWidth;
     offsetY = offsetY % tileHeight;
 
@@ -127,12 +120,12 @@ function draw() {
     const cols = Math.ceil(width / tileWidth / scale) + tileBuffer;
     const rows = Math.ceil(height / tileHeight / scale) + tileBuffer;
 
-    for (let row = -tileBuffer; row < rows; row++) {
-      for (let col = -tileBuffer; col < cols; col++) {
+    for (let row=-tileBuffer; row<rows; row++){
+      for (let col=-tileBuffer; col<cols; col++){
         ctx.drawImage(
           img,
-          col * tileWidth - offsetX,
-          row * tileHeight - offsetY,
+          col*tileWidth - offsetX,
+          row*tileHeight - offsetY,
           tileWidth,
           tileHeight
         );
@@ -144,14 +137,12 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// Resize handling
-window.addEventListener('resize', () => {
+window.addEventListener('resize', ()=>{
   width = window.innerWidth;
   height = window.innerHeight;
   canvas.width = width;
   canvas.height = height;
 });
 </script>
-
 </body>
 </html>
