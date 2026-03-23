@@ -4,16 +4,6 @@
 <meta charset="UTF-8">
 <title>Megan 30th Infinite Parallax</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-html, body { margin:0; padding:0; overflow:hidden; height:100vh; background:black; }
-canvas { display:block; }
-
-
-  
-<head>
-<meta charset="UTF-8">
-<title>Megan 30th Infinite Parallax</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 html, body {
@@ -24,99 +14,51 @@ html, body {
   background:black;
 }
 
-canvas { display:block; }
-
-/* ===== PROGRESS BAR ===== */
-#progress {
-  width: 300px;
-  appearance: none;
-  -webkit-appearance: none;
-  background: transparent;
+canvas {
+  display:block;
 }
 
-/* Track */
-#progress::-webkit-slider-runnable-track {
-  height: 6px;
-  background: white;
-}
-
-#progress::-moz-range-track {
-  height: 6px;
-  background: white;
-}
-
-/* PNG playhead */
-#progress::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 40px;
-  height: 40px;
-  background: url('playhead.png') no-repeat center;
-  background-size: contain;
-  border: none;
-  cursor: pointer;
-  margin-top: -17px;
-}
-
-#progress::-moz-range-thumb {
-  width: 40px;
-  height: 40px;
-  background: url('playhead.png') no-repeat center;
-  background-size: contain;
-  border: none;
-  cursor: pointer;
-}
-</style>
-</head>
-
-
-  
-<body>
-
-
-<div style="
+/* Center Webamp */
+#webamp-container {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-">
+}
+</style>
+</head>
 
-  <audio id="audioPlayer" src="song.mp3"></audio>
+<body>
 
-  <button onclick="audio.play()">Play</button>
-  <button onclick="audio.pause()">Pause</button>
+<!-- Webamp container -->
+<div id="webamp-container"></div>
 
-  <input id="progress" type="range" value="0" step="0.01">
-
-</div>
-  
-const audio = document.getElementById('audioPlayer');
-const progress = document.getElementById('progress');
-
-// Update progress bar
-audio.addEventListener('timeupdate', () => {
-  if (audio.duration) {
-    progress.value = audio.currentTime / audio.duration;
-  }
-});
-
-// Seek
-progress.addEventListener('input', () => {
-  audio.currentTime = progress.value * audio.duration;
-});
-  
-  
+<!-- Parallax canvas -->
 <canvas id="parallaxCanvas"></canvas>
 
+<!-- Webamp -->
+<script src="https://unpkg.com/webamp"></script>
+<script>
+const webamp = new Webamp({
+  initialTracks: [{
+    metaData: {
+      artist: "Megan 30th",
+      title: "Track 1"
+    },
+    url: "song.mp3"
+  }]
+});
+
+webamp.renderWhenReady(document.getElementById('webamp-container'));
+</script>
+
+<!-- Parallax Script -->
 <script>
 // CONFIG
 const layersCount = 10;
-const mouseIntensity = 2; // higher for more scroll movement
-const layerScaleFront = 0.5;
+const mouseIntensity = 0.15;
+const layerScaleFront = 0.05;
 const tileWidth = 1920;
 const tileHeight = 1080;
 const tileBuffer = 1;
@@ -130,9 +72,10 @@ let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse tracking with easing
+// Mouse easing
 let targetX = width/2, targetY = height/2;
 let mouseX = width/2, mouseY = height/2;
+
 document.addEventListener('mousemove', e => {
   targetX = e.clientX;
   targetY = e.clientY;
@@ -143,15 +86,16 @@ const layerFiles = [
   'images/10.jpg','images/9.png','images/8.png','images/7.png','images/6.png',
   'images/5.png','images/4.png','images/3.png','images/2.png','images/1.png'
 ];
+
 const layers = [];
 let loadedCount = 0;
 
-layerFiles.forEach((src, i) => {
+layerFiles.forEach((src) => {
   const img = new Image();
   img.src = src;
   img.onload = () => {
     loadedCount++;
-    if(loadedCount === layersCount) requestAnimationFrame(draw);
+    if (loadedCount === layersCount) requestAnimationFrame(draw);
   };
   layers.push({img});
 });
@@ -160,38 +104,36 @@ layerFiles.forEach((src, i) => {
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
-  // Smooth mouse easing
+  // Smooth easing
   mouseX += (targetX - mouseX) * 0.08;
   mouseY += (targetY - mouseY) * 0.08;
 
   layers.forEach((layer, i) => {
     const img = layer.img;
-    if(!img.width) return;
+    if (!img.width) return;
 
-    // Depth for parallax (front layers move more)
-    const depth = ((i+1)/layersCount) * 3; // increased multiplier for stronger scroll
+    const depth = ((i+1)/layersCount) * 3;
 
-    // Compute offsets
     let offsetX = (mouseX - width/2) * mouseIntensity * depth;
     let offsetY = (mouseY - height/2) * mouseIntensity * depth;
 
-    // Wrap offsets for infinite tiling
     offsetX = offsetX % tileWidth;
     offsetY = offsetY % tileHeight;
 
     const scale = 1 + (i / layersCount) * layerScaleFront;
+
     ctx.save();
     ctx.scale(scale, scale);
 
     const cols = Math.ceil(width / tileWidth / scale) + tileBuffer;
     const rows = Math.ceil(height / tileHeight / scale) + tileBuffer;
 
-    for(let row=-tileBuffer; row<rows; row++){
-      for(let col=-tileBuffer; col<cols; col++){
+    for (let row = -tileBuffer; row < rows; row++) {
+      for (let col = -tileBuffer; col < cols; col++) {
         ctx.drawImage(
           img,
-          col*tileWidth - offsetX,
-          row*tileHeight - offsetY,
+          col * tileWidth - offsetX,
+          row * tileHeight - offsetY,
           tileWidth,
           tileHeight
         );
@@ -204,8 +146,8 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// RESIZE HANDLER
-window.addEventListener('resize', ()=>{
+// Resize
+window.addEventListener('resize', () => {
   width = window.innerWidth;
   height = window.innerHeight;
   canvas.width = width;
