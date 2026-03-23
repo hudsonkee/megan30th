@@ -12,25 +12,34 @@ html, body {
   height: 100vh;
   background: black;
 }
-canvas { display: block; }
+canvas {
+  display: block;
+}
 
+/* Webamp container always centered */
 #webamp-container {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 9999;
+  pointer-events: auto;
 }
 </style>
 </head>
 <body>
 
+<!-- Parallax Canvas -->
 <canvas id="parallaxCanvas"></canvas>
+
+<!-- Webamp Container -->
 <div id="webamp-container"></div>
 
+<!-- Webamp Library -->
 <script src="https://unpkg.com/webamp"></script>
+
 <script>
-// ---------------- Parallax ----------------
+// ======== Parallax Setup ========
 const layersCount = 10;
 const mouseIntensity = 0.15;
 const layerScaleFront = 0.05;
@@ -53,9 +62,9 @@ const layerFiles = [
   'images/10.jpg','images/9.png','images/8.png','images/7.png','images/6.png',
   'images/5.png','images/4.png','images/3.png','images/2.png','images/1.png'
 ];
+
 const layers = [];
 let loadedCount = 0;
-
 layerFiles.forEach(src => {
   const img = new Image();
   img.src = src;
@@ -97,14 +106,19 @@ window.addEventListener('resize',()=>{
   canvas.height=height;
 });
 
-// ---------------- Webamp ----------------
-document.addEventListener("DOMContentLoaded", () => {
+// ======== Webamp Setup ========
+window.addEventListener("load", () => {
   const webamp = new Webamp({
-    initialTracks:[{metaData:{artist:"Megan 30th",title:"Track 1"},url:"song.mp3"}],
-    initialSkin:{url:"https://unpkg.com/webamp@latest/skins/base-2.91.wsz"}
+    initialTracks:[
+      { metaData: { artist: "Megan 30th", title: "Track 1" }, url: "song.mp3" }
+    ],
+    initialSkin: { url: "https://unpkg.com/webamp@latest/skins/base-2.91.wsz" }
   });
+
+  // Render Webamp AFTER window load
   webamp.renderWhenReady(document.getElementById("webamp-container"));
 });
 </script>
+
 </body>
 </html>
