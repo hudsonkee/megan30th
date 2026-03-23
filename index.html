@@ -2,120 +2,46 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Megan 30th Infinite Parallax + Webamp</title>
+<title>Webamp Test</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  height: 100vh;
-  background: black;
-}
-canvas {
-  display: block;
-}
+  body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    height: 100vh;
+    overflow: hidden;
+  }
 
-/* Webamp container always centered */
-#webamp-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-  pointer-events: auto;
-}
+  #webamp-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 </style>
 </head>
 <body>
 
-<!-- Parallax Canvas -->
-<canvas id="parallaxCanvas"></canvas>
-
-<!-- Webamp Container -->
 <div id="webamp-container"></div>
 
-<!-- Webamp Library -->
+<!-- Include Webamp library -->
 <script src="https://unpkg.com/webamp"></script>
 
 <script>
-// ======== Parallax Setup ========
-const layersCount = 10;
-const mouseIntensity = 0.15;
-const layerScaleFront = 0.05;
-const tileWidth = 1920;
-const tileHeight = 1080;
-const tileBuffer = 1;
-
-const canvas = document.getElementById('parallaxCanvas');
-const ctx = canvas.getContext('2d');
-let width = window.innerWidth;
-let height = window.innerHeight;
-canvas.width = width;
-canvas.height = height;
-
-let targetX = width/2, targetY = height/2;
-let mouseX = width/2, mouseY = height/2;
-document.addEventListener('mousemove', e => { targetX = e.clientX; targetY = e.clientY; });
-
-const layerFiles = [
-  'images/10.jpg','images/9.png','images/8.png','images/7.png','images/6.png',
-  'images/5.png','images/4.png','images/3.png','images/2.png','images/1.png'
-];
-
-const layers = [];
-let loadedCount = 0;
-layerFiles.forEach(src => {
-  const img = new Image();
-  img.src = src;
-  img.onload = () => { loadedCount++; if(loadedCount===layersCount) requestAnimationFrame(draw); };
-  layers.push({ img });
-});
-
-function draw(){
-  ctx.clearRect(0,0,width,height);
-  mouseX += (targetX - mouseX)*0.08;
-  mouseY += (targetY - mouseY)*0.08;
-  layers.forEach((layer,i)=>{
-    const img = layer.img;
-    if(!img.width) return;
-    const depth = ((i+1)/layersCount)*3;
-    let offsetX = (mouseX - width/2) * mouseIntensity * depth;
-    let offsetY = (mouseY - height/2) * mouseIntensity * depth;
-    offsetX = offsetX % tileWidth;
-    offsetY = offsetY % tileHeight;
-    const scale = 1 + (i/layersCount)*layerScaleFront;
-    ctx.save();
-    ctx.scale(scale,scale);
-    const cols = Math.ceil(width/tileWidth/scale)+tileBuffer;
-    const rows = Math.ceil(height/tileHeight/scale)+tileBuffer;
-    for(let row=-tileBuffer; row<rows; row++){
-      for(let col=-tileBuffer; col<cols; col++){
-        ctx.drawImage(img,col*tileWidth-offsetX,row*tileHeight-offsetY,tileWidth,tileHeight);
-      }
-    }
-    ctx.restore();
-  });
-  requestAnimationFrame(draw);
-}
-
-window.addEventListener('resize',()=>{
-  width=window.innerWidth;
-  height=window.innerHeight;
-  canvas.width=width;
-  canvas.height=height;
-});
-
-// ======== Webamp Setup ========
 window.addEventListener("load", () => {
   const webamp = new Webamp({
-    initialTracks:[
-      { metaData: { artist: "Megan 30th", title: "Track 1" }, url: "song.mp3" }
+    initialTracks: [
+      { 
+        metaData: { artist: "Test Artist", title: "Test Track" },
+        url: "song.mp3"  // Place song.mp3 in the root folder
+      }
     ],
-    initialSkin: { url: "https://unpkg.com/webamp@latest/skins/base-2.91.wsz" }
+    initialSkin: {
+      url: "https://unpkg.com/webamp@latest/skins/base-2.91.wsz"
+    }
   });
 
-  // Render Webamp AFTER window load
   webamp.renderWhenReady(document.getElementById("webamp-container"));
 });
 </script>
