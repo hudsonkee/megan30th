@@ -4,58 +4,76 @@
 <meta charset="UTF-8">
 <title>Megan 30th Infinite Parallax</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <style>
-html, body {
-  margin:0;
-  padding:0;
-  overflow:hidden;
-  height:100vh;
-  background:black;
-}
+  html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100vh;
+    background: black;
+  }
+  canvas {
+    display: block;
+  }
 
-canvas {
-  display:block;
-}
+  /* Center Webamp */
+  #webamp-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+  }
 
-/* Center Webamp */
-#webamp-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 9999;
-}
+  /* Optional: overlay a start button */
+  #startButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    padding: 20px 40px;
+    font-size: 20px;
+    cursor: pointer;
+  }
 </style>
 </head>
 
 <body>
 
-<!-- Webamp container -->
-<div id="webamp-container"></div>
-
-<!-- Parallax canvas -->
+<!-- Parallax Canvas -->
 <canvas id="parallaxCanvas"></canvas>
 
-<!-- Webamp -->
-<script src="https://unpkg.com/webamp"></script>
-<script>
-const webamp = new Webamp({
-  initialTracks: [{
-    metaData: {
-      artist: "Megan 30th",
-      title: "Track 1"
-    },
-    url: "song.mp3"
-  }]
-});
+<!-- Webamp Container -->
+<div id="webamp-container"></div>
 
-webamp.renderWhenReady(document.getElementById('webamp-container'));
+<!-- Start Button for user interaction (required for autoplay) -->
+<button id="startButton">Click to Start Audio</button>
+
+<!-- Webamp Library -->
+<script src="https://unpkg.com/webamp"></script>
+
+<script>
+// 1️⃣ Start button logic (ensures audio is allowed)
+const startBtn = document.getElementById('startButton');
+startBtn.addEventListener('click', () => {
+  // Initialize Webamp
+  const webamp = new Webamp({
+    initialTracks: [{
+      metaData: { artist: "Megan 30th", title: "Track 1" },
+      url: "song.mp3"
+    }]
+  });
+
+  webamp.renderWhenReady(document.getElementById('webamp-container'));
+
+  // Hide the start button once clicked
+  startBtn.style.display = 'none';
+});
 </script>
 
-<!-- Parallax Script -->
 <script>
-// CONFIG
+// 2️⃣ Parallax configuration
 const layersCount = 10;
 const mouseIntensity = 0.15;
 const layerScaleFront = 0.05;
@@ -63,34 +81,31 @@ const tileWidth = 1920;
 const tileHeight = 1080;
 const tileBuffer = 1;
 
-// SETUP
+// Canvas setup
 const canvas = document.getElementById('parallaxCanvas');
 const ctx = canvas.getContext('2d');
-
 let width = window.innerWidth;
 let height = window.innerHeight;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse easing
+// Mouse tracking with easing
 let targetX = width/2, targetY = height/2;
 let mouseX = width/2, mouseY = height/2;
-
 document.addEventListener('mousemove', e => {
   targetX = e.clientX;
   targetY = e.clientY;
 });
 
-// Load images
+// Load layer images
 const layerFiles = [
   'images/10.jpg','images/9.png','images/8.png','images/7.png','images/6.png',
   'images/5.png','images/4.png','images/3.png','images/2.png','images/1.png'
 ];
-
 const layers = [];
 let loadedCount = 0;
 
-layerFiles.forEach((src) => {
+layerFiles.forEach(src => {
   const img = new Image();
   img.src = src;
   img.onload = () => {
@@ -100,7 +115,7 @@ layerFiles.forEach((src) => {
   layers.push({img});
 });
 
-// DRAW LOOP
+// Draw loop
 function draw() {
   ctx.clearRect(0, 0, width, height);
 
@@ -128,12 +143,12 @@ function draw() {
     const cols = Math.ceil(width / tileWidth / scale) + tileBuffer;
     const rows = Math.ceil(height / tileHeight / scale) + tileBuffer;
 
-    for (let row = -tileBuffer; row < rows; row++) {
-      for (let col = -tileBuffer; col < cols; col++) {
+    for (let row=-tileBuffer; row<rows; row++){
+      for (let col=-tileBuffer; col<cols; col++){
         ctx.drawImage(
           img,
-          col * tileWidth - offsetX,
-          row * tileHeight - offsetY,
+          col*tileWidth - offsetX,
+          row*tileHeight - offsetY,
           tileWidth,
           tileHeight
         );
@@ -146,8 +161,8 @@ function draw() {
   requestAnimationFrame(draw);
 }
 
-// Resize
-window.addEventListener('resize', () => {
+// Resize handler
+window.addEventListener('resize', ()=>{
   width = window.innerWidth;
   height = window.innerHeight;
   canvas.width = width;
