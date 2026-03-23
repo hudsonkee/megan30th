@@ -13,43 +13,50 @@ canvas { display:block; }
   <meta charset="UTF-8">
   <title>Your Page</title>
 
-  <style>
-  #progress {
-    width: 300px;
-    appearance: none;
-    background: transparent;
-  }
+  
+<style>
+#progress {
+  width: 300px;
+  appearance: none;
+  -webkit-appearance: none; /* IMPORTANT */
+  background: transparent;
+}
 
-  #progress::-webkit-slider-runnable-track {
-    height: 6px;
-    background: white;
-  }
+/* Track */
+#progress::-webkit-slider-runnable-track {
+  height: 6px;
+  background: white;
+}
 
-  #progress::-moz-range-track {
-    height: 6px;
-    background: white;
-  }
+#progress::-moz-range-track {
+  height: 6px;
+  background: white;
+}
 
-  #progress::-webkit-slider-thumb {
-    appearance: none;
-    width: 30px;
-    height: 30px;
-    background: url('playhead.png') no-repeat center;
-    background-size: contain;
-    cursor: pointer;
-    margin-top: -12px;
-  }
+/* THUMB (playhead PNG) */
+#progress::-webkit-slider-thumb {
+  -webkit-appearance: none;  /* IMPORTANT */
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  background: url('playhead.png') no-repeat center;
+  background-size: contain;
+  border: none;
+  cursor: pointer;
+  margin-top: -17px; /* adjust based on size */
+}
 
-  #progress::-moz-range-thumb {
-    width: 30px;
-    height: 30px;
-    background: url('playhead.png') no-repeat center;
-    background-size: contain;
-    border: none;
-    cursor: pointer;
-  }
-  </style>
+#progress::-moz-range-thumb {
+  width: 40px;
+  height: 40px;
+  background: url('playhead.png') no-repeat center;
+  background-size: contain;
+  border: none;
+  cursor: pointer;
+}
+</style>
 
+  
 </head>
 
   
