@@ -1,50 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Webamp Test</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background: black;
-    height: 100vh;
-    overflow: hidden;
-  }
-
-  #webamp-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-</style>
+    <title>My Webamp Page</title>
 </head>
 <body>
-
-<div id="webamp-container"></div>
-
-<!-- Include Webamp library -->
-<script src="https://unpkg.com/webamp"></script>
-
-<script>
-window.addEventListener("load", () => {
-  const webamp = new Webamp({
-    initialTracks: [
-      { 
-        metaData: { artist: "Test Artist", title: "Test Track" },
-        url: "song.mp3"  // Place song.mp3 in the root folder
-      }
-    ],
-    initialSkin: {
-      url: "https://unpkg.com/webamp@latest/skins/base-2.91.wsz"
-    }
-  });
-
-  webamp.renderWhenReady(document.getElementById("webamp-container"));
-});
+    <div id="app" style="height: 100vh">
+        <!-- Webamp will attempt to center itself within this div -->
+    </div>
+    <script type="module">
+        import Webamp from "https://unpkg.com/webamp@^2";
+        const webamp = new Webamp({});
+        webamp.renderWhenReady(document.getElementById("app"));
+    </script>
+  <script type="module">
+    import Webamp from "https://unpkg.com/webamp@^2";
+    const webamp = new Webamp({
+        initialTracks: [
+            {
+                metaData: {
+                    artist: "DJ Mike Llama",
+                    title: "Llama Whippin' Intro",
+                },
+                url: "./assets/llama.mp3", // Path to your MP3 file
+                duration: 5.322244897959183
+            }
+        ],
+        initialSkin: {
+            url: "./assets/base-2.91.wsz" // Path to your skin file
+        }
+    });
+    webamp.renderWhenReady(document.getElementById("app"));
 </script>
-
 </body>
 </html>
