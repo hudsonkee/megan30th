@@ -49,6 +49,14 @@ const webamp = new Webamp({
       url: "./song.mp3",     // Place your MP3 in the root folder
       duration: 5.322244897959183
     }
+      {
+      metaData: {
+        artist: "Hudson Lee",
+        title: "Fairy Lights",
+      },
+      url: "./song2.mp3",     // Place your MP3 in the root folder
+      duration: 5.322244897959183
+    }
   ],
   initialSkin: {
     url: "./cuteamp.wsz"     // Your skin file in the root folder
@@ -63,7 +71,7 @@ webamp.renderWhenReady(document.getElementById("webamp-container"));
 <script>
 // CONFIG
 const layersCount = 10;
-const mouseIntensity = 0.15;
+const mouseIntensity = 0.3;
 const layerScaleFront = 0.05;
 const tileWidth = 1920;
 const tileHeight = 1080;
@@ -111,7 +119,7 @@ function draw() {
     const img = layer.img;
     if (!img.width) return;
 
-    const depth = ((i+1)/layersCount) * 3;
+    const depth = ((i+1)/layersCount) * 4;
     let offsetX = (mouseX - width/2) * mouseIntensity * depth;
     let offsetY = (mouseY - height/2) * mouseIntensity * depth;
     offsetX = offsetX % tileWidth;
