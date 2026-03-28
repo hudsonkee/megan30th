@@ -40,6 +40,51 @@ canvas {
   transform: translateX(-50%);
   width: 30%;
 ">
+
+<!-- Draggable Images -->
+<img src="bunnygiffy_transparent.gif" class="draggable" style="position:absolute; width:15%;">
+<img src="froggiffy_transparent.gif" class="draggable" style="position:absolute; width:15%;">
+<img src="kittygiffy_transparent.gif" class="draggable" style="position:absolute; width:15%;">
+<img src="poetry.png" class="draggable" style="position:absolute; width:20%;">
+ <!-- Draggable script -->
+<script>
+    const elements = document.querySelectorAll(".draggable");
+    let z = 1000;
+    let current = null;
+    let offsetX = 0, offsetY = 0;
+
+    elements.forEach(el => {
+      // Random initial positions
+      const topPercent = Math.random() * 80;
+      const leftPercent = Math.random() * 80;
+      el.style.top = topPercent + "vh";
+      el.style.left = leftPercent + "vw";
+      el.style.cursor = "grab";
+
+      // Drag functionality
+      el.addEventListener("mousedown", (e) => {
+        current = el;
+        offsetX = e.clientX - el.offsetLeft;
+        offsetY = e.clientY - el.offsetTop;
+        el.style.cursor = "grabbing";
+        el.style.zIndex = ++z; // bring to front
+      });
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!current) return;
+      current.style.left = (e.clientX - offsetX) + "px";
+      current.style.top = (e.clientY - offsetY) + "px";
+    });
+
+    document.addEventListener("mouseup", () => {
+      if (current) current.style.cursor = "grab";
+      current = null;
+    });
+</script>
+
+
+  
 <canvas id="parallaxCanvas"></canvas>
 <div id="webamp-container"></div>
 
