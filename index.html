@@ -72,14 +72,13 @@ function getClientXY(e) {
 }
 
 elements.forEach(el => {
-  // Random initial positions
-  const topPercent = Math.random() * 80;
-  const leftPercent = Math.random() * 80;
+  // Random initial positions (percent of viewport)
+  const topPercent = Math.random() * 80;   
+  const leftPercent = Math.random() * 80;  
   el.style.top = topPercent + "vh";
   el.style.left = leftPercent + "vw";
-  el.style.cursor = "grab";
 
-  // Start dragging
+  // Drag start
   function startDrag(e) {
     current = el;
     const rect = el.getBoundingClientRect();
@@ -88,24 +87,41 @@ elements.forEach(el => {
     offsetY = y - rect.top;
     el.style.cursor = "grabbing";
     el.style.zIndex = ++z;
-    e.preventDefault();
+    e.preventDefault(); // prevent scrolling/selecting
   }
 
   el.addEventListener("mousedown", startDrag);
   el.addEventListener("touchstart", startDrag);
 });
 
-// Move dragging
+// Drag move
 function moveDrag(e) {
   if (!current) return;
   const { x, y } = getClientXY(e);
-  current.style.left = (x - offsetX) + "px";
-  current.style.top = (y - offsetY) + "px";
-}
-document.addEventListener("mousemove", moveDrag);
-document.addEventListener("touchmove", moveDrag, { passive: false }); // passive:false to allow preventDefault
 
-// End dragging
+  // Viewport size
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  // Current element size
+  const rect = current.getBoundingClientRect();
+  const elemWidth = rect.width;
+  const elemHeight = rect.height;
+
+  // Clamp values so element stays inside viewport
+  let left = x - offsetX;
+  let top = y - offsetY;
+  left = Math.max(0, Math.min(left, vw - elemWidth));
+  top = Math.max(0, Math.min(top, vh - elemHeight));
+
+  current.style.left = left + "px";
+  current.style.top = top + "px";
+}
+
+document.addEventListener("mousemove", moveDrag);
+document.addEventListener("touchmove", moveDrag, { passive: false });
+
+// Drag end
 function endDrag(e) {
   if (current) current.style.cursor = "grab";
   current = null;
