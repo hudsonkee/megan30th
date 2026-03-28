@@ -47,40 +47,42 @@ canvas {
 <img src="kittygiffy_transparent.gif" class="draggable" style="position:absolute; width:7%;">
 <img src="poetry.png" class="draggable" style="position:absolute; width:10%;">
  <!-- Draggable script -->
+<!-- Draggable Script -->
 <script>
-    const elements = document.querySelectorAll(".draggable");
-    let z = 1000;
-    let current = null;
-    let offsetX = 0, offsetY = 0;
+const elements = document.querySelectorAll(".draggable");
+let z = 1000;
+let current = null;
+let offsetX = 0, offsetY = 0;
 
-    elements.forEach(el => {
-      // Random initial positions
-      const topPercent = Math.random() * 80;
-      const leftPercent = Math.random() * 80;
-      el.style.top = topPercent + "vh";
-      el.style.left = leftPercent + "vw";
-      el.style.cursor = "grab";
+elements.forEach(el => {
+  // Random initial positions (percentages of viewport)
+  const topPercent = Math.random() * 80;   
+  const leftPercent = Math.random() * 80;  
+  el.style.top = topPercent + "vh";
+  el.style.left = leftPercent + "vw";
 
-      // Drag functionality
-      el.addEventListener("mousedown", (e) => {
-        current = el;
-        offsetX = e.clientX - el.offsetLeft;
-        offsetY = e.clientY - el.offsetTop;
-        el.style.cursor = "grabbing";
-        el.style.zIndex = ++z; // bring to front
-      });
-    });
+  // Windows-style drag
+  el.addEventListener("mousedown", (e) => {
+    current = el;
+    const rect = el.getBoundingClientRect();
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
+    el.style.cursor = "grabbing";
+    el.style.zIndex = ++z;
+    e.preventDefault(); // prevent text selection
+  });
+});
 
-    document.addEventListener("mousemove", (e) => {
-      if (!current) return;
-      current.style.left = (e.clientX - offsetX) + "px";
-      current.style.top = (e.clientY - offsetY) + "px";
-    });
+document.addEventListener("mousemove", (e) => {
+  if (!current) return;
+  current.style.left = (e.clientX - offsetX) + "px";
+  current.style.top = (e.clientY - offsetY) + "px";
+});
 
-    document.addEventListener("mouseup", () => {
-      if (current) current.style.cursor = "grab";
-      current = null;
-    });
+document.addEventListener("mouseup", () => {
+  if (current) current.style.cursor = "grab";
+  current = null;
+});
 </script>
 
 
