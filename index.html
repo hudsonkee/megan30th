@@ -55,7 +55,6 @@ canvas {
 <img src="froggiffy_transparent.gif" class="draggable" style="position:absolute; width:7%;">
 <img src="kittygiffy_transparent.gif" class="draggable" style="position:absolute; width:7%;">
 <img src="poetry2.png" class="draggable" style="position:absolute; width:20%;">
- <!-- Draggable script -->
 <!-- Draggable Script -->
 <script>
 const elements = document.querySelectorAll(".draggable");
@@ -63,35 +62,57 @@ let z = 1000;
 let current = null;
 let offsetX = 0, offsetY = 0;
 
+// Helper to get client coordinates from mouse or touch
+function getClientXY(e) {
+  if (e.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  } else {
+    return { x: e.clientX, y: e.clientY };
+  }
+}
+
 elements.forEach(el => {
-  // Random initial positions (percentages of viewport)
-  const topPercent = Math.random() * 80;   
-  const leftPercent = Math.random() * 80;  
+  // Random initial positions
+  const topPercent = Math.random() * 80;
+  const leftPercent = Math.random() * 80;
   el.style.top = topPercent + "vh";
   el.style.left = leftPercent + "vw";
+  el.style.cursor = "grab";
 
-  // Windows-style drag
-  el.addEventListener("mousedown", (e) => {
+  // Start dragging
+  function startDrag(e) {
     current = el;
     const rect = el.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
+    const { x, y } = getClientXY(e);
+    offsetX = x - rect.left;
+    offsetY = y - rect.top;
     el.style.cursor = "grabbing";
     el.style.zIndex = ++z;
-    e.preventDefault(); // prevent text selection
-  });
+    e.preventDefault();
+  }
+
+  el.addEventListener("mousedown", startDrag);
+  el.addEventListener("touchstart", startDrag);
 });
 
-document.addEventListener("mousemove", (e) => {
+// Move dragging
+function moveDrag(e) {
   if (!current) return;
-  current.style.left = (e.clientX - offsetX) + "px";
-  current.style.top = (e.clientY - offsetY) + "px";
-});
+  const { x, y } = getClientXY(e);
+  current.style.left = (x - offsetX) + "px";
+  current.style.top = (y - offsetY) + "px";
+}
+document.addEventListener("mousemove", moveDrag);
+document.addEventListener("touchmove", moveDrag, { passive: false }); // passive:false to allow preventDefault
 
-document.addEventListener("mouseup", () => {
+// End dragging
+function endDrag(e) {
   if (current) current.style.cursor = "grab";
   current = null;
-});
+}
+document.addEventListener("mouseup", endDrag);
+document.addEventListener("touchend", endDrag);
+document.addEventListener("touchcancel", endDrag);
 </script>
 
 
