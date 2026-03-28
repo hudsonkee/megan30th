@@ -188,13 +188,28 @@ let height = window.innerHeight * renderScale;
 canvas.width = width;
 canvas.height = height;
 
-// Mouse tracking
+// Mouse + Touch tracking
 let targetX = width/2, targetY = height/2;
 let mouseX = width/2, mouseY = height/2;
-document.addEventListener('mousemove', e => {
-  targetX = e.clientX * renderScale;
-  targetY = e.clientY * renderScale;
-});
+
+function updateTarget(e) {
+  let x, y;
+  if (e.touches && e.touches.length > 0) {
+    x = e.touches[0].clientX;
+    y = e.touches[0].clientY;
+  } else {
+    x = e.clientX;
+    y = e.clientY;
+  }
+  targetX = x * renderScale;
+  targetY = y * renderScale;
+}
+
+document.addEventListener('mousemove', updateTarget);
+document.addEventListener('touchmove', function(e){
+  updateTarget(e);
+  e.preventDefault(); // prevent scrolling while dragging/touching
+}, { passive: false });
 
 // Load images
 const layerFiles = [
