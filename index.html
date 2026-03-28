@@ -62,23 +62,22 @@ let z = 1000;
 let current = null;
 let offsetX = 0, offsetY = 0;
 
-// Helper to get client coordinates from mouse or touch
-function getClientXY(e) {
-  if (e.touches && e.touches.length > 0) {
-    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  } else {
-    return { x: e.clientX, y: e.clientY };
-  }
-}
-
 elements.forEach(el => {
-  // Random initial positions (percent of viewport)
+  // Get the width of the image in vw
+  const style = window.getComputedStyle(el);
+  let width = parseFloat(style.width) / window.innerWidth * 100; // % of viewport
+
+  // Random initial positions
   const topPercent = Math.random() * 80;   
-  const leftPercent = Math.random() * 80;  
+  const leftPercent = Math.random() * (100 - width); // ensure it stays inside viewport
   el.style.top = topPercent + "vh";
   el.style.left = leftPercent + "vw";
+  el.style.cursor = "grab";
 
-  // Drag start
+  // Windows-style drag
+  el.addEventListener("mousedown", startDrag);
+  el.addEventListener("touchstart", startDrag);
+
   function startDrag(e) {
     current = el;
     const rect = el.getBoundingClientRect();
@@ -87,48 +86,44 @@ elements.forEach(el => {
     offsetY = y - rect.top;
     el.style.cursor = "grabbing";
     el.style.zIndex = ++z;
-    e.preventDefault(); // prevent scrolling/selecting
+    e.preventDefault(); // prevent text selection
   }
 
-  el.addEventListener("mousedown", startDrag);
-  el.addEventListener("touchstart", startDrag);
+  function getClientXY(e) {
+    if (e.touches && e.touches.length > 0) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    } else {
+      return { x: e.clientX, y: e.clientY };
+    }
+  }
 });
-
-// Drag move
-function moveDrag(e) {
-  if (!current) return;
-  const { x, y } = getClientXY(e);
-
-  // Viewport size
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-
-  // Current element size
-  const rect = current.getBoundingClientRect();
-  const elemWidth = rect.width;
-  const elemHeight = rect.height;
-
-  // Clamp values so element stays inside viewport
-  let left = x - offsetX;
-  let top = y - offsetY;
-  left = Math.max(0, Math.min(left, vw - elemWidth));
-  top = Math.max(0, Math.min(top, vh - elemHeight));
-
-  current.style.left = left + "px";
-  current.style.top = top + "px";
-}
 
 document.addEventListener("mousemove", moveDrag);
 document.addEventListener("touchmove", moveDrag, { passive: false });
 
-// Drag end
-function endDrag(e) {
-  if (current) current.style.cursor = "grab";
-  current = null;
+function moveDrag(e) {
+  if (!current) return;
+  const { x, y } = currentTouches(e);
+  current.style.left = (x - offsetX) + "px";
+  current.style.top = (y - offsetY) + "px";
 }
+
 document.addEventListener("mouseup", endDrag);
 document.addEventListener("touchend", endDrag);
 document.addEventListener("touchcancel", endDrag);
+
+function currentTouches(e) {
+  if (e.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  } else {
+    return { x: e.clientX, y: e.clientY };
+  }
+}
+
+function endDrag() {
+  if (current) current.style.cursor = "grab";
+  current = null;
+}
 </script>
 
 
