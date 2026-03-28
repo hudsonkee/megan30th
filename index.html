@@ -1,10 +1,12 @@
 <!DOCTYPE html>
+// Favicon
 <link rel="icon" type="image/png" href="30simple.png">
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Happy 30th Birthday Megan!</title>
+<title>Happy Birthday Megan!</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 html, body {
   margin: 0;
@@ -30,7 +32,13 @@ canvas {
 </style>
 </head>
 <body>
-
+<img src="megan30header2.png" style="
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+">
 <canvas id="parallaxCanvas"></canvas>
 <div id="webamp-container"></div>
 
@@ -65,7 +73,7 @@ const webamp = new Webamp({
 webamp.renderWhenReady(document.getElementById("webamp-container"));
 </script>
 
-<!-- Optimized Parallax Script -->
+// Parallax
 <script>
 // CONFIG
 const layersCount = 10;
