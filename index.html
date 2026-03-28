@@ -57,73 +57,82 @@ canvas {
 <img src="poetry2.png" class="draggable" style="position:absolute; height:33%;">
 <!-- Draggable Script -->
 <script>
-const elements = document.querySelectorAll(".draggable");
-let z = 1000;
-let current = null;
-let offsetX = 0, offsetY = 0;
+    const elements = document.querySelectorAll(".draggable");
+    let z = 1000;
+    let current = null;
+    let offsetX = 0, offsetY = 0;
 
-elements.forEach(el => {
-  // Get the width of the image in vw
-  const style = window.getComputedStyle(el);
-  let width = parseFloat(style.width) / window.innerWidth * 100; // % of viewport
+    elements.forEach(el => {
+      // Random initial positions (stay inside viewport)
+      const style = window.getComputedStyle(el);
+      let width = parseFloat(style.width) / window.innerWidth * 100; // % of viewport
+      const topPercent = Math.random() * 80;   
+      const leftPercent = Math.random() * (100 - width); // prevent spawning offscreen
+      el.style.top = topPercent + "vh";
+      el.style.left = leftPercent + "vw";
+      el.style.cursor = "grab";
 
-  // Random initial positions
-  const topPercent = Math.random() * 80;   
-  const leftPercent = Math.random() * (100 - width); // ensure it stays inside viewport
-  el.style.top = topPercent + "vh";
-  el.style.left = leftPercent + "vw";
-  el.style.cursor = "grab";
+      // Windows-style drag
+      el.addEventListener("mousedown", startDrag);
+      el.addEventListener("touchstart", startDrag);
 
-  // Windows-style drag
-  el.addEventListener("mousedown", startDrag);
-  el.addEventListener("touchstart", startDrag);
+      function startDrag(e) {
+        current = el;
+        const rect = el.getBoundingClientRect();
+        const { x, y } = getClientXY(e);
+        offsetX = x - rect.left;
+        offsetY = y - rect.top;
+        el.style.cursor = "grabbing";
+        el.style.zIndex = ++z;
+        e.preventDefault();
+      }
 
-  function startDrag(e) {
-    current = el;
-    const rect = el.getBoundingClientRect();
-    const { x, y } = getClientXY(e);
-    offsetX = x - rect.left;
-    offsetY = y - rect.top;
-    el.style.cursor = "grabbing";
-    el.style.zIndex = ++z;
-    e.preventDefault(); // prevent text selection
-  }
+      function getClientXY(e) {
+        if (e.touches && e.touches.length > 0) {
+          return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+        } else {
+          return { x: e.clientX, y: e.clientY };
+        }
+      }
+    });
 
-  function getClientXY(e) {
-    if (e.touches && e.touches.length > 0) {
-      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    } else {
-      return { x: e.clientX, y: e.clientY };
+    // Move draggable and clamp to viewport
+    function moveDrag(e) {
+      if (!current) return;
+      const { x, y } = currentTouches(e);
+
+      let newLeft = x - offsetX;
+      let newTop = y - offsetY;
+
+      const imgWidth = current.offsetWidth;
+      const imgHeight = current.offsetHeight;
+
+      const maxLeft = window.innerWidth - imgWidth;
+      const maxTop = window.innerHeight - imgHeight;
+
+      current.style.left = Math.min(Math.max(0, newLeft), maxLeft) + "px";
+      current.style.top = Math.min(Math.max(0, newTop), maxTop) + "px";
     }
-  }
-});
 
-document.addEventListener("mousemove", moveDrag);
-document.addEventListener("touchmove", moveDrag, { passive: false });
+    document.addEventListener("mousemove", moveDrag);
+    document.addEventListener("touchmove", moveDrag, { passive: false });
 
-function moveDrag(e) {
-  if (!current) return;
-  const { x, y } = currentTouches(e);
-  current.style.left = (x - offsetX) + "px";
-  current.style.top = (y - offsetY) + "px";
-}
+    function currentTouches(e) {
+      if (e.touches && e.touches.length > 0) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      } else {
+        return { x: e.clientX, y: e.clientY };
+      }
+    }
 
-document.addEventListener("mouseup", endDrag);
-document.addEventListener("touchend", endDrag);
-document.addEventListener("touchcancel", endDrag);
+    function endDrag() {
+      if (current) current.style.cursor = "grab";
+      current = null;
+    }
 
-function currentTouches(e) {
-  if (e.touches && e.touches.length > 0) {
-    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-  } else {
-    return { x: e.clientX, y: e.clientY };
-  }
-}
-
-function endDrag() {
-  if (current) current.style.cursor = "grab";
-  current = null;
-}
+    document.addEventListener("mouseup", endDrag);
+    document.addEventListener("touchend", endDrag);
+    document.addEventListener("touchcancel", endDrag);
 </script>
 
 
